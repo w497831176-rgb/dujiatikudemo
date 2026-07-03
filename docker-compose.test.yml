@@ -1,0 +1,39 @@
+version: "3.8"
+
+services:
+  test-api:
+    image: dujia-tiku-test-api
+    container_name: dujia-tiku-test-api
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DB_PATH=/app/data/du-tiku.db
+      - JWT_SECRET=${JWT_SECRET:-dujia-tiku-test-secret}
+      - AI_ENDPOINT=${AI_ENDPOINT:-https://api.deepseek.com/v1/chat/completions}
+      - AI_API_KEY=${AI_API_KEY}
+      - AI_MODEL=${AI_MODEL:-deepseek-chat}
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./api/src:/app/src:ro
+    networks:
+      - dujia-tiku-test-net
+
+  test-nginx:
+    image: nginx:alpine
+    container_name: dujia-tiku-test-nginx
+    restart: unless-stopped
+    ports:
+      - "${HOST_PORT:-18082}:80"
+    volumes:
+      - ./nginx/nginx.test.conf:/etc/nginx/nginx.conf:ro
+      - ./web:/usr/share/nginx/html:ro
+    depends_on:
+      - test-api
+    networks:
+      - dujia-tiku-test-net
+
+networks:
+  dujia-tiku-test-net:
+    driver: bridge

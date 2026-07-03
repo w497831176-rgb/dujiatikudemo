@@ -1,0 +1,7 @@
+data/*.db
+data/*.db-*
+logs/*
+.env
+*.bak
+*.bak.*
+__pycache__/
